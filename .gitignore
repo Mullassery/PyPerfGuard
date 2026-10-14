@@ -1,0 +1,13 @@
+/target
+**/*.rs.bk
+*.pdb
+
+# PyPerfGuard local artifacts
+/.pyperfguard/
+pyperfguard-results/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

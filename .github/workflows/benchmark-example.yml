@@ -1,0 +1,116 @@
+# Example: run a benchmark on every pull request, compare it against a stored
+# baseline, evaluate the regression policy, publish a report, and gate the job
+# on the policy exit code.
+#
+# Copy this file into your repository (typically .github/workflows/) and adapt
+# the benchmark ids and commands to your project.
+
+name: Performance regression guard
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+# Least privilege. No secrets or write scopes are required.
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BENCHMARK: example-sleep
+  STORE: .pyperfguard
+
+jobs:
+  benchmark:
+    name: Benchmark and gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Revision metadata is most useful with full history. Remove this if
+          # clone time matters more than commit/branch reporting.
+          fetch-depth: 0
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build PyPerfGuard
+        run: cargo build --release
+
+      # Restore the baseline store carried over from previous runs. This is how
+      # baselines persist without a hosted service. Replace the cache step with
+      # actions/download-artifact@v4 if you prefer uploaded artifacts.
+      - name: Restore baseline store
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.STORE }}
+          key: pyperfguard-store-${{ env.BENCHMARK }}-${{ github.ref }}
+          restore-keys: |
+            pyperfguard-store-${{ env.BENCHMARK }}-
+
+      - name: Ensure configuration exists
+        run: |
+          if [ ! -f pyperfguard.toml ]; then
+            cp examples/pyperfguard.toml pyperfguard.toml
+          fi
+
+      - name: Run benchmark
+        run: ./target/release/pyperfguard run "$BENCHMARK" --json > result.json
+
+      - name: Upload machine-readable result
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-result-${{ github.run_id }}
+          path: result.json
+          retention-days: 30
+
+      - name: Evaluate regression policy
+        id: check
+        # Do not fail here yet: we want to publish the report even on failure.
+        continue-on-error: true
+        run: |
+          ./target/release/pyperfguard check "$BENCHMARK" \
+            --summary-file summary.md \
+            --json > check.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          {
+            echo "## PyPerfGuard — \`$BENCHMARK\`"
+            echo
+            if [ -f summary.md ]; then cat summary.md; fi
+            echo
+            echo "Policy exit code: \`${{ steps.check.outputs.exit_code }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-check-${{ github.run_id }}
+          path: |
+            summary.md
+            check.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # Persist the updated store (including the new result) for future runs.
+      - name: Save baseline store
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.STORE }}
+          key: pyperfguard-store-${{ env.BENCHMARK }}-${{ github.ref }}-${{ github.run_id }}
+
+      - name: Fail if the policy regressed
+        if: steps.check.outputs.exit_code != '0'
+        run: |
+          echo "PyPerfGuard reported a blocking outcome (exit ${{ steps.check.outputs.exit_code }})."
+          exit 1

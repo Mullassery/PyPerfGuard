@@ -1,0 +1,70 @@
+# Example PyPerfGuard configuration.
+# Test it with:  pyperfguard --config examples/pyperfguard.toml validate
+# Run it with:   pyperfguard --config examples/pyperfguard.toml run example-sleep
+
+[project]
+name = "pyperfguard-examples"
+# Default baseline selector: "latest", a "*.json" artifact path, or a commit SHA.
+# baseline = "latest"
+
+[output]
+dir = ".pyperfguard"
+retain = 100
+
+# A trivial workload that sleeps. Replace `command` with your own program.
+[[benchmarks]]
+id = "example-sleep"
+description = "Example workload; replace with your own command."
+command = ["python3", "-c", "import time; time.sleep(0.02)"]
+warmups = 1
+repetitions = 5
+timeout_seconds = 30
+
+  [benchmarks.measure]
+  metrics = ["wall_time", "peak_rss", "cpu_time"]
+
+  [[benchmarks.policy.thresholds]]
+  metric = "wall_time"
+  max_increase_pct = 5.0
+  severity = "block"
+
+  [[benchmarks.policy.thresholds]]
+  metric = "peak_rss"
+  max_increase_pct = 10.0
+  severity = "warn"
+
+# A CPU-bound workload with an absolute memory budget, capture, and redaction.
+[[benchmarks]]
+id = "example-cpu"
+description = "Spin the CPU for a short while and allocate a little memory."
+command = ["python3", "-c", "x = sum(i*i for i in range(2_000_000)); print(x)"]
+cwd = "."
+warmups = 1
+repetitions = 7
+timeout_seconds = 60
+redact_env = ["CI_TOKEN", "AWS_SECRET_ACCESS_KEY"]
+stdout = "capture"
+stderr = "capture"
+capture_limit_bytes = 65536
+
+  [benchmarks.env]
+  PYTHONHASHSEED = "0"
+
+  [benchmarks.measure]
+  metrics = ["wall_time", "cpu_time", "peak_rss", "cpu_utilization"]
+
+  [benchmarks.policy]
+  min_successful_repetitions = 5
+  noise_tolerance_pct = 2.0
+  require_statistical_significance = true
+  fail_on_inconclusive = false
+
+  [[benchmarks.policy.thresholds]]
+  metric = "wall_time"
+  max_increase_pct = 8.0
+  severity = "block"
+
+  [[benchmarks.policy.thresholds]]
+  metric = "peak_rss"
+  max_increase_abs = 4194304   # 4 MiB, in bytes
+  severity = "block"
