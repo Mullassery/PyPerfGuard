@@ -409,7 +409,7 @@ impl LoadedConfig {
 /// Render a starter configuration file.
 pub fn starter_config() -> String {
     r#"# PyPerfGuard configuration
-# See https://github.com/example/pyperfguard for documentation.
+# See https://github.com/Mullassery/PyPerfGuard for documentation.
 
 [project]
 name = "my-project"

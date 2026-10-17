@@ -50,7 +50,7 @@ records the method in every result. See [`docs/adr/0003-measurement-semantics.md
 ### From source (requires a Rust toolchain)
 
 ```sh
-git clone https://github.com/example/pyperfguard.git
+git clone https://github.com/Mullassery/PyPerfGuard.git
 cd pyperfguard
 cargo build --release
 ./target/release/pyperfguard --version
