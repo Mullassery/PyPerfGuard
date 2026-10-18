@@ -11,3 +11,6 @@ pyperfguard-results/
 .idea/
 .vscode/
 *.swp
+
+# build artifacts
+/dist/
