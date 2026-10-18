@@ -20,9 +20,6 @@ classifiers = [
   "Topic :: System :: Benchmark",
 ]
 
-[project.scripts]
-pyperfguard = "pyperfguard:main"
-
 [tool.maturin]
 bindings = "bin"
 module-name = "pyperfguard"
