@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "outputs": {
+    "md": [
+      "docs.1.md",
+      "overview.md"
+    ],
+    "html": [
+      "docs.1.html",
+      "overview.html"
+    ]
+  }
+}
