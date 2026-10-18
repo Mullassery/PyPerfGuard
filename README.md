@@ -1,5 +1,7 @@
 # PyPerfGuard
 
+[![PyPI](https://img.shields.io/pypi/v/pyperfguard.svg)](https://pypi.org/project/pyperfguard/)
+
 **Make performance regressions measurable, explainable, reproducible, and enforceable.**
 
 PyPerfGuard is a native benchmark runner and performance-regression guard written in
@@ -46,6 +48,17 @@ records the method in every result. See [`docs/adr/0003-measurement-semantics.md
 > caveats, but it cannot make a noisy machine quiet.
 
 ## Installation
+
+### From PyPI
+
+```sh
+pip install pyperfguard
+pyperfguard --version
+```
+
+The PyPI package ships the native binary as a platform wheel, so there is no
+Rust toolchain or separate build step. Wheels are published per platform; if no
+wheel exists for yours yet, use one of the source installs below.
 
 ### From source (requires a Rust toolchain)
 
