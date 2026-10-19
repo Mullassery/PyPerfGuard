@@ -165,6 +165,16 @@ The same flow can be simulated locally without GitHub:
 scripts/local_ci.sh
 ```
 
+## Known issues and deferred work
+
+**Blocked / failed:**
+- crates.io/prebuilt binaries (no registry token); profiling.
+
+**Rejected / deferred:**
+- Flamegraph profiling now.
+
+Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
+
 ## Queue status
 
 Shipped, blocked/failed, and rejected work for this repository is documented in
