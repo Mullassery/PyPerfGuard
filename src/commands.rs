@@ -586,6 +586,14 @@ fn baseline_cmd(args: BaselineArgs, config_path: Option<PathBuf>) -> Result<i32>
                 println!("no baseline registered for '{benchmark}'");
             }
         }
+        BaselineAction::Export { output } => {
+            mgr.export_to(&output)?;
+            println!("exported baselines to {}", output.display());
+        }
+        BaselineAction::Import { input } => {
+            let count = mgr.import_from(&input)?;
+            println!("imported {} baseline(s) from {}", count, input.display());
+        }
     }
     Ok(exit::SUCCESS)
 }

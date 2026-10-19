@@ -148,6 +148,31 @@ impl BaselineManager {
         Ok(self.load_registry()?.entries.into_values().collect())
     }
 
+    /// Export the baseline registry as portable JSON.
+    pub fn export_to(&self, path: &Path) -> Result<()> {
+        let reg = self.load_registry()?;
+        let text =
+            serde_json::to_string_pretty(&reg).map_err(|e| Error::Serialization(e.to_string()))?;
+        atomic_write(path, text.as_bytes())
+    }
+
+    /// Import baselines from portable JSON, merging by benchmark id.
+    /// Result files must exist in this store for the baselines to be usable.
+    pub fn import_from(&self, path: &Path) -> Result<usize> {
+        let text = std::fs::read_to_string(path)
+            .map_err(|e| Error::io(format!("reading {}", path.display()), e))?;
+        let incoming: BaselinesFile = serde_json::from_str(&text)
+            .map_err(|e| Error::Serialization(format!("parsing {}: {e}", path.display())))?;
+        let mut reg = self.load_registry()?;
+        let count = incoming.entries.len();
+        for (benchmark, entry) in incoming.entries {
+            reg.entries.insert(benchmark, entry);
+        }
+        reg.schema_version = SCHEMA_VERSION;
+        self.save_registry(&reg)?;
+        Ok(count)
+    }
+
     /// Remove the registered baseline for a benchmark.
     pub fn clear(&self, benchmark_id: &str) -> Result<bool> {
         let mut reg = self.load_registry()?;
@@ -339,6 +364,22 @@ mod tests {
     fn select_missing_revision_errors() {
         let (_tmp, mgr) = manager();
         assert!(mgr.select("b", Some("deadbeef"), None).is_err());
+    }
+
+    #[test]
+    fn export_import_round_trip() {
+        let (tmp, mgr) = manager();
+        mgr.store()
+            .save(&result("b", "2026-01-01T00:00:00Z", "abc"))
+            .unwrap();
+        mgr.register_latest("b").unwrap();
+        let export = tmp.path().join("baselines-export.json");
+        mgr.export_to(&export).unwrap();
+
+        mgr.clear("b").unwrap();
+        assert!(mgr.get("b").unwrap().is_none());
+        assert_eq!(mgr.import_from(&export).unwrap(), 1);
+        assert!(mgr.get("b").unwrap().is_some());
     }
 
     #[test]

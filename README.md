@@ -113,6 +113,13 @@ pyperfguard compare example-sleep 'example-sleep@latest' --format markdown
 
 `compare` accepts `latest`, `benchmark-id@<commit-sha>`, or a path to a result artifact.
 
+Share a baseline registry through CI artifacts:
+
+```sh
+pyperfguard baseline export --output baselines.json
+pyperfguard baseline import baselines.json
+```
+
 ## A regression policy
 
 Policies live in `pyperfguard.toml`:

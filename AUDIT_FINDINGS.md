@@ -46,4 +46,5 @@ Invest; distribution is the only blocker.
 
 ## Implementation status
 
-No code changes in this pass.
+Added `baseline export`/`import` for CI artifact sharing, with a round-trip
+test. Version `0.2.0`. Publishing to crates.io/prebuilt binaries remains open.

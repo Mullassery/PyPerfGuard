@@ -249,6 +249,18 @@ pub enum BaselineAction {
         #[arg(long, value_name = "ID")]
         benchmark: String,
     },
+    /// Export the baseline registry as JSON for a CI artifact.
+    Export {
+        /// Output JSON path.
+        #[arg(long, value_name = "PATH")]
+        output: PathBuf,
+    },
+    /// Import a previously exported baseline registry.
+    Import {
+        /// Input JSON path.
+        #[arg(value_name = "PATH")]
+        input: PathBuf,
+    },
 }
 
 /// Arguments for `report`.
