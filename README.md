@@ -175,11 +175,6 @@ scripts/local_ci.sh
 
 Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
 
-## Queue status
-
-Shipped, blocked/failed, and rejected work for this repository is documented in
-[`QUEUE_STATUS.md`](QUEUE_STATUS.md).
-
 ## Documentation
 
 - [`docs/architecture.md`](docs/architecture.md) — internal boundaries and data flow.
