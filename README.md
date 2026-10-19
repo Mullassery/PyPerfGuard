@@ -206,6 +206,14 @@ Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
 
 See [`SECURITY.md`](SECURITY.md).
 
+## Outlier reporting
+
+Summaries now include Tukey outliers (values outside 1.5×IQR) under
+`summary.outliers`. They are **reported, never silently removed**: `n`, mean,
+median and max still reflect the full measured sample, so noisy CI runners
+remain visible rather than being hidden by an automatic filter. The field is
+omitted when there are fewer than four samples (IQR undefined).
+
 ## Development
 
 ```sh

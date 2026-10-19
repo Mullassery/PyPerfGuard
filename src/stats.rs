@@ -31,6 +31,10 @@ pub struct Summary {
     pub iqr: Option<f64>,
     /// Coefficient of variation (std_dev / mean). `None` when undefined.
     pub cv: Option<f64>,
+    /// Values outside the 1.5×IQR fences. `None` when there are too few
+    /// samples; outliers are reported, never silently removed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outliers: Option<Vec<f64>>,
 }
 
 /// Arithmetic mean. Returns `None` for an empty slice.
@@ -130,7 +134,25 @@ pub fn summarize(xs: &[f64]) -> Option<Summary> {
         },
         iqr: iqr(xs),
         cv,
+        outliers: outliers(xs),
     })
+}
+
+/// Values outside the Tukey 1.5×IQR fences. `None` when n < 4 (the IQR is
+/// undefined); an empty vector means no outliers were found.
+pub fn outliers(xs: &[f64]) -> Option<Vec<f64>> {
+    let spread = iqr(xs)?;
+    let q1 = quantile(xs, 0.25)?;
+    let q3 = quantile(xs, 0.75)?;
+    let low = q1 - 1.5 * spread;
+    let high = q3 + 1.5 * spread;
+    let mut values: Vec<f64> = xs
+        .iter()
+        .copied()
+        .filter(|value| *value < low || *value > high)
+        .collect();
+    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    Some(values)
 }
 
 /// Relative change from `baseline` to `current`, in percent.
@@ -370,5 +392,24 @@ mod tests {
         approx(erf(0.0), 0.0);
         assert!((erf(1.0) - 0.8427007929).abs() < 1e-6);
         assert!((erf(-1.0) + 0.8427007929).abs() < 1e-6);
+    }
+}
+
+#[cfg(test)]
+mod outlier_tests {
+    use super::*;
+
+    #[test]
+    fn reports_tukey_outliers_without_removing_them() {
+        let values = [100.0, 101.0, 99.0, 100.5, 1000.0];
+        let summary = summarize(&values).unwrap();
+        assert_eq!(summary.outliers.as_deref(), Some(&[1000.0][..]));
+        assert_eq!(summary.n, 5); // outlier remains in the summary
+        assert_eq!(summary.max, 1000.0);
+    }
+
+    #[test]
+    fn no_outliers_for_small_samples() {
+        assert_eq!(outliers(&[1.0, 2.0, 3.0]), None);
     }
 }
