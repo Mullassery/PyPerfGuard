@@ -165,6 +165,11 @@ The same flow can be simulated locally without GitHub:
 scripts/local_ci.sh
 ```
 
+## Queue status
+
+Shipped, blocked/failed, and rejected work for this repository is documented in
+[`QUEUE_STATUS.md`](QUEUE_STATUS.md).
+
 ## Documentation
 
 - [`docs/architecture.md`](docs/architecture.md) — internal boundaries and data flow.
