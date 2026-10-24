@@ -173,7 +173,7 @@ scripts/local_ci.sh
 **Rejected / deferred:**
 - Flamegraph profiling now.
 
-Full shipped/blocked/rejected detail: [`QUEUE_STATUS.md`](QUEUE_STATUS.md).
+Full shipped/blocked/rejected detail: [`docs/internal/QUEUE_STATUS.md`](docs/internal/QUEUE_STATUS.md).
 
 ## Documentation
 
