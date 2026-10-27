@@ -63,7 +63,7 @@ wheel exists for yours yet, use one of the source installs below.
 ### From source (requires a Rust toolchain)
 
 ```sh
-git clone https://github.com/Mullassery/PyPerfGuard.git
+git clone ../PyPerfGuard
 cd pyperfguard
 cargo build --release
 ./target/release/pyperfguard --version

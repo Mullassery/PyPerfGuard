@@ -1,7 +1,7 @@
 # Bundle role — Repo health / CI
 
 This repository is part of the **Repo health / CI** bundle. Portfolio-level rationale,
-reuse map, and phases are in [`Mullassery/BUNDLES.md`](https://github.com/Mullassery/Mullassery/blob/main/BUNDLES.md).
+reuse map, and phases are in [`Mullassery/BUNDLES.md`](../Mullassery/blob/main/BUNDLES.md).
 
 - **Role:** Performance regression policy
 - **Upstream/downstream:** All repos, repo-health bundle

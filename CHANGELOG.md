@@ -42,4 +42,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test suite: unit tests, CLI integration tests, and property-based tests for
   statistical invariants.
 
-[Unreleased]: https://github.com/Mullassery/PyPerfGuard/commits/HEAD
+[Unreleased]: ../PyPerfGuard/commits/HEAD

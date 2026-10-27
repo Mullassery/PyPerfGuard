@@ -6,7 +6,7 @@ semantics, reproducibility, and architectural discipline over feature count.
 ## Getting started
 
 ```sh
-git clone https://github.com/Mullassery/PyPerfGuard.git
+git clone ../PyPerfGuard
 cd pyperfguard
 cargo build
 cargo test
